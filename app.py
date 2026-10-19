@@ -8,7 +8,7 @@ CORS(app)
 
 analyzer = SentimentIntensityAnalyzer()
 
-# قائمة الكلمات السلبية الحاسمة التي تمنع التصنيف الإيجابي الخاطئ
+# قائمة الكلمات السلبية الحاسمة التي تمنع التصنيف الإيجابي أو المحايد الخاطئ
 NEGATIVE_TRIGGER_WORDS = {'ugly', 'sad', 'hurt', 'mean', 'bad', 'hate', 'cry', 'worst', 'lonely', 'depressed'}
 
 def analyze_quote(text):
@@ -16,12 +16,13 @@ def analyze_quote(text):
     scores = analyzer.polarity_scores(text)
     compound = scores['compound']
 
-    # فحص الكلمات السلبية القاطعة
+    # فحص وجود أي كلمة سلبية حاسمة
     has_negative_trigger = any(word in text_lower for word in NEGATIVE_TRIGGER_WORDS)
 
-    if has_negative_trigger and compound > 0:
-        # خفض النتيجة إذا وُجدت كلمات سلبية حاسمة رغم وجود كلمات إيجابية
-        compound = -abs(compound) if compound != 0 else -0.35
+    # إذا وجدت كلمة سلبية حاسمة، يجبر النموذج على إعطاء نتيجة سلبية
+    if has_negative_trigger:
+        if compound >= 0 or compound > -0.35:
+            compound = -0.45
 
     if compound >= 0.35:
         sentiment = "Inspirational 💡"
@@ -61,4 +62,3 @@ def analyze():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
-    
