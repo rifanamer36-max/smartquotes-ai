@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Quotes AI Analyser 💡</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex items-center justify-center p-4">
+
+    <div class="max-w-xl w-full bg-slate-800 rounded-2xl p-6 shadow-2xl border border-slate-700">
+        <h1 class="text-2xl font-bold mb-2 text-indigo-400">Smart Quotes AI 💡</h1>
+        <p class="text-slate-400 text-sm mb-6">اكتبي أي اقتباس باللغة الإنجليزية ودعي الذكاء الاصطناعي يحلل مشاعره ونوعه تلقائياً.</p>
+
+        <textarea id="quoteInput" rows="4" class="w-full bg-slate-900 text-slate-200 border border-slate-700 rounded-xl p-3 focus:outline-none focus:border-indigo-500 mb-4" placeholder="Type your quote here..."></textarea>
+
+        <button onclick="analyzeQuote()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg">
+            تحليل الاقتباس الآن ✨
+        </button>
+
+        <div id="resultCard" class="hidden mt-6 p-4 rounded-xl bg-slate-900 border border-slate-700">
+            <h3 class="text-sm font-semibold text-slate-400 mb-1">النتيجة:</h3>
+            <div id="sentimentBadge" class="text-lg font-bold text-indigo-300"></div>
+            <div id="scoreText" class="text-xs text-slate-500 mt-1"></div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeQuote() {
+            const quote = document.getElementById('quoteInput').value;
+            if(!quote) return alert('الرجاء كتابة اقتباس أولاً');
+
+            const response = await fetch('http://127.0.0.1:5000/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quote: quote })
+            });
+
+            const data = await response.json();
+            
+            document.getElementById('sentimentBadge').innerText = data.sentiment;
+            document.getElementById('scoreText').innerText = `Polarity Score: ${data.polarity_score}`;
+            document.getElementById('resultCard').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
