@@ -1,24 +1,28 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from textblob import TextBlob
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 app = Flask(__name__)
 CORS(app)
 
-def analyze_quote(text):
-    blob = TextBlob(text)
-    polarity = blob.sentiment.polarity
+analyzer = SentimentIntensityAnalyzer()
 
-    if polarity > 0.3:
+def analyze_quote(text):
+    scores = analyzer.polarity_scores(text)
+    compound = scores['compound']  # النتيجة الشاملة من -1 إلى 1
+
+    if compound >= 0.3:
         sentiment = "Inspirational 💡"
-    elif polarity > 0:
+    elif compound > 0.05:
         sentiment = "Positive ✨"
-    elif polarity < 0:
+    elif compound <= -0.3:
+        sentiment = "Stress / Negative 🌧️"
+    elif compound < -0.05:
         sentiment = "Reflective / Deep 🧠"
     else:
         sentiment = "Neutral 📄"
 
-    return sentiment, round(polarity, 2)
+    return sentiment, round(compound, 2)
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
