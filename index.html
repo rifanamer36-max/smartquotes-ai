@@ -30,7 +30,7 @@
             const quote = document.getElementById('quoteInput').value;
             if(!quote) return alert('الرجاء كتابة اقتباس أولاً');
 
-            const response = await fetch('http://127.0.0.1:5000/analyze', {
+           const response = await fetch('https://smartquotes-ai-1.onrender.com/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ quote: quote })
